@@ -1,0 +1,286 @@
+--Variables
+  version = "1.0.0"
+  running = true
+  appNumber = 1
+  app1Data = {1, 10, "edit ", "/disk/gui"}
+  
+  --Window
+  local xLength, yLength = term.getSize()
+    wSx = 3
+    wSy = 3
+    wEx = (xLength-2)
+    wEy = (yLength-1)
+    
+  --Colour Themes
+    colTask1 = colors.blue
+    colTask2 = colors.lightBlue
+    colTask3 = colors.gray
+    colTaskText = colors.white
+    colBack = colours.blue
+    colWindow = colors.white
+    colWindowText = colors.black
+    
+ 
+  --Images
+  
+    _dt = paintutils.loadImage("/Library/Backgrounds/minif")
+  
+  --Booleans
+  
+    _mms = 0
+    _rcm = 0
+--Functions
+  clearBlack = function()
+    term.setBackgroundColor(colors.black)
+    term.clear()
+    term.setCursorPos(1, 1)
+  end
+  
+  clear = function()
+    term.clear()
+    term.setCursorPos(1, 1)
+  end
+  
+  drawBar = function()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColour(colTask1)
+    term.clearLine()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColor(colTask2)
+    term.setTextColor(colTaskText)
+    term.write("M >")    
+    term.setCursorPos(5, 1)
+    term.write("File >")
+  end
+  
+  drawMainMenu1 = function()
+    term.setCursorPos(1, 1)
+    term.setBackgroundColor(colTask3)
+    term.setTextColor(colTaskText)
+    print("M v")
+    term.setCursorPos(1, 2)
+    term.setBackgroundColor(colTask3)
+    term.setTextColor(colTaskText)
+    print("Home  ")
+    print("Logout")
+    print("Power ")
+  end
+  
+  drawMainMenu2 = function()
+    term.setCursorPos(5, 1)
+    term.setBackgroundColor(colTask3)
+    print("File v")
+    term.setBackgroundColor(colTask3)
+    term.setTextColor(colTaskText)
+    term.setCursorPos(5, 2)
+    print("Type  ")
+    term.setCursorPos(5, 3)
+    print("Paint ")
+    
+  end
+  
+  drawClickMenu = function(x, y)
+    _rcm = 1
+    term.setBackgroundColor(colors.gray)
+    term.setTextColor(colors.white)
+    term.setCursorPos(x, y)
+    term.write("Move  ")
+    term.setCursorPos(x, y+1)
+    term.write("Delete")
+    term.setCursorPos(x, y+2)
+    term.write("Folder")
+    term.setCursorPos(x, y+3)
+    term.write("Look  ")
+    while true do
+      event, button, xPos, yPos = os.pullEvent("mouse_click")
+      if button == 1 and xPos <= (x+7) and xPos >= x and yPos == y then
+        moveFile()
+        break
+      else if button == 1 and xPos <= (x+7) and xPos >= x and yPos == (y+1) then
+        deleteFile()
+        break
+      else if button == 1 and xPos <= (x+7) and xPos >= x and yPos == (y+2) then
+        makeFolder()
+        break
+      else if button == 1 and xPos <= (x+7) and xPos >= x and yPos == (y+3) then
+        seeDir()
+        break
+      else
+        init()
+      end
+      end
+      end
+      end
+    end
+  end
+
+  moveFile = function()
+    term.setBackgroundColor(colours.grey)
+    term.setCursorPos(wSx, wSy)
+    paintutils.drawFilledBox(wSx, wSy, wEx, wEy, colWindow)
+    term.setCursorPos(wSx+3, wSy+2)
+    term.setTextColor(colWindowText)
+    term.write("Move or rename what?")
+    term.setCursorPos(wSx+3, wSy+3)
+    local moveWhat = read()
+    if fs.exists(moveWhat) then
+      term.setCursorPos(wSx+3, wSy+4)
+      term.write("Name or Location?")
+      term.setCursorPos(wSx+3, wSy+5)
+      local moveWhere = read()
+      if moveWhere == moveWhat then
+        term.setCursorPos(wSx+3, wSy+6)
+        term.write("You cannot rename the same name")
+      else
+        if moveWhere == "" then
+          init()
+        else
+        term.setCursorPos(wSx+3, wSy+6)
+        shell.run("rename ", moveWhat, " ", moveWhere) 
+        term.setCursorPos(wSx+3, wSy+7)
+        term.write("Done!")
+        end
+      end
+    else
+      term.setCursorPos(wSx+3, wSy+4)
+      term.write("The File Doesn't Exist")
+    end
+  end
+  
+  deleteFile = function()
+    term.setBackgroundColor(colours.grey)
+    term.setCursorPos(wSx, wSy)
+    paintutils.drawFilledBox(wSx, wSy, wEx, wEy, colWindow)
+    term.setCursorPos(wSx+3, wSy+2)
+    term.setTextColor(colWindowText)
+    term.write("Delete What?")
+    term.setCursorPos(wSx+3, wSy+3)
+    local deleteWhat = read()
+    term.setCursorPos(wSx+3, wSy+4)
+    shell.run("delete ", deleteWhat)
+    term.setCursorPos(wSx+3, wSy+5)
+    term.write("Done!")
+  end
+  
+  makeFolder = function()
+    paintutils.drawFilledBox(wSx, wSy, wEx, wEy, colWindow)
+    term.setCursorPos(wSx+3, wSy+2)
+    term.setTextColor(colWindowText)
+    term.write("Make a folder where?")
+    term.setCursorPos(wSx+3, wSy+3)
+    local nameItWhat = read()
+    term.setCursorPos(wSx+3, wSx+4)
+    shell.run("mkdir ", nameItWhat)
+    term.setCursorPos(wSx+3, wSx+5)
+    term.write("Done!")
+  end
+  
+  seeDir = function()
+    paintutils.drawFilledBox(wSx, wSy, wEx, wEy, colWindow)
+    term.setCursorPos(wSx+3, wSy+2)
+    term.setTextColor(colWindowText)
+    term.write("See What Directory?")
+    term.setCursorPos(wSx+3, wSy+4)
+    local seeWhat = read()
+    term.setCursorPos(wSx+3, wSy+5)
+    xWrite, yWrite = term.getCursorPos()
+    if fs.exists(seeWhat) then
+      xWrite, yWrite = term.getCursorPos()
+      local seeingWhat = fs.list(seeWhat)
+      for _, file in ipairs(seeingWhat) do
+      listADir = file.." "
+      listADirLength = string.len(listADir)
+     -- term.write(listADirLength.." ")
+      if xWrite+listADirLength >= wEx-7 then
+        term.setCursorPos(wSx+3, yWrite+1)
+        xWrite, yWrite = term.getCursorPos()
+        if yWrite > wEy-3 then
+          print("Too Many Files in that directory.")
+          break
+        end
+      end
+      term.write(listADir)
+      
+    --  term.write(string.len(file.." "))
+    --  term.write(" "..xWrite..wEx)
+    --  term.setCursorPos(xWrite, yWrite)
+    --  sleep(3)
+      end
+    else
+      term.write("Folder Doesn't Exist")
+    end
+  end
+  
+  drawGUI = function()
+    paintutils.drawFilledBox(3, 4, 5, 5, colors.green)
+  end
+
+  drawDesktop = function()
+    term.setBackgroundColor(colBack)
+    clear()
+    paintutils.drawImage(_dt, 1, 1)
+  end
+  
+  stop = function()
+    clear()
+    drawDesktop()
+    running = false
+    term.setTextColor(colours.white)
+    textutils.slowPrint("                               ")
+    clearBlack()
+  end
+
+  reload = function()
+    clearBlack()
+    running = false
+    shell.run("/disk/copy")
+    shell.run("/disk/System/gui")
+  end
+
+  runTime = function()
+    while running do
+    event, button, x, y = os.pullEvent("mouse_click")
+      if event == "mouse_click" then
+        if _mms == 0 and button == 1 and x < 4 and y == 1 then
+          drawMainMenu1()
+          _mms = 1
+        else if _mms == 1 and button == 1 and x < 7 and y == 3 then
+          stop()
+        else if _mms == 1 and button == 1 and x < 7 and y == 4 then
+          stop()
+          os.shutdown()
+        else if _mms == 1 and button == 1 then
+          init() 
+        else if _mms == 0 and _rcm == 0 and button == 2 then
+          drawClickMenu(x, y)
+        else if _mms == 0 and _rcm == 0 and button == 1 and x > 2 and x < 6 and y > 3 and y < 6 then
+          shell.run("edit", "/disk/System/gui")
+          reload()
+        else if _mms == 0 and _rcm == 0 and button == 1 and x >= 5 and x <= 8 and y == 1 then
+          drawMainMenu2()
+          _mms = 2
+        else if _mms == 2 and button == 1 then
+          init() 
+        end
+        end
+        end
+        end
+        end
+        end
+        end
+        end
+      end
+    end
+  end
+
+  init = function()
+    _mms = 0
+    _rcm = 0
+    drawDesktop()
+    drawBar()
+    drawGUI()
+    runTime()
+  end  
+
+--Main scripts
+init()

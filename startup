@@ -1,0 +1,6 @@
+--os.pullEvent = os.pullEventRaw
+
+print("Booting")
+sleep(3)
+shell.run("/System/password")
+os.shutdown()

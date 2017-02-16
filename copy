@@ -1,0 +1,27 @@
+if fs.exists("Library") then
+  fs.delete("Library")
+  fs.copy("disk/Library", "Library")
+else
+  fs.copy("disk/Library", "Library")
+end
+
+if fs.exists("startup") then
+  fs.delete("startup")
+  fs.copy("disk/startup", "startup")
+else
+  fs.copy("disk/startup", "startup")
+end
+
+if fs.exists("System") then
+  fs.delete("System")
+  fs.copy("disk/System", "System")
+else
+  fs.copy("disk/System", "System")
+end
+
+if fs.exists("Users") then
+  fs.delete("Users")
+  fs.copy("disk/Users", "Users")
+else
+  fs.copy("disk/Users", "Users")
+end
